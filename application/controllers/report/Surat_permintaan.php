@@ -28,9 +28,9 @@ class Surat_permintaan extends MY_Controller
       $row[] = $u->tanggal_pengajuan;
       $row[] = $u->proyek;
       $row[] = $u->lokasi;
-      if ($u->id_status == '1' || $u->id_status == '3' || $u->id_status == '5' || $u->id_status == '7') {
+      if ($u->id_status == '1' || $u->id_status == '3' || $u->id_status == '5' || $u->id_status == '7' || $u->id_status == '8') {
         $status_permintaan = '<font color="green">' . $u->status_permintaan . '</font>';
-      } else if ($u->id_status == '2' || $u->id_status == '4' || $u->id_status == '6' || $u->id_status == '8') {
+      } else if ($u->id_status == '2' || $u->id_status == '4' || $u->id_status == '6' || $u->id_status == '9') {
         $status_permintaan = '<font color="red">' . $u->status_permintaan . '</font>';
       } else {
         $status_permintaan = '<font color="blue">' . $u->status_permintaan . '</font>';

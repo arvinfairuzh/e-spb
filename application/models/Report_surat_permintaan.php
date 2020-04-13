@@ -26,6 +26,8 @@ class Report_surat_permintaan extends CI_Model
                 $qry_verifikasi = ' AND permintaan_barang.status_permintaan = 5 ';
             } else if ($_SESSION['role_id'] == 5) {
                 $qry_verifikasi = ' AND permintaan_barang.status_permintaan = 7 ';
+            } else if ($_SESSION['role_id'] == 6) {
+                $qry_verifikasi = ' AND permintaan_barang.status_permintaan = 8 ';
             }
         } else {
             $qry_verifikasi = '';
@@ -74,6 +76,8 @@ class Report_surat_permintaan extends CI_Model
 
         if ($_SESSION['role_id'] == 0) {
             $qry_page = "";
+        } else if ($_SESSION['role_id'] == 5 || $_SESSION['role_id'] == 6) {
+            $qry_page = "WHERE permintaan_barang.status = 'ENABLE' " . $qry_jenisku . " " . $qry_verifikasi;
         } else {
             $qry_page = "WHERE permintaan_barang.status = 'ENABLE' " . $qry_proyekku . " " . $qry_jenisku . " " . $qry_verifikasi;
         }

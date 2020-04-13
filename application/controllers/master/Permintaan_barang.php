@@ -1026,6 +1026,10 @@ class Permintaan_barang extends MY_Controller
 				$role_notif = 5;
 				$dt['id_pd'] = $_SESSION['id'];
 				$dt['status_permintaan'] = 7;
+			} else if ($_SESSION['role_id'] == 5) {
+				$role_notif = 6;
+				$dt['id_lp'] = $_SESSION['id'];
+				$dt['status_permintaan'] = 8;
 			}
 			$notif['ke'] = $count_ke;
 			$notif['keterangan'] = 3;
@@ -1060,6 +1064,8 @@ class Permintaan_barang extends MY_Controller
 					$user_role = $this->mymodel->selectDataone("user", "id = '$id_user_jenis' AND role_id <= $role_notif");
 				} else if ($_SESSION['role_id'] == 4) {
 					$user_role = $this->mymodel->selectDataone("user", "id = '$id_user_jenis' AND role_id <= $role_notif");
+				} else if ($_SESSION['role_id'] == 5) {
+					$user_role = $this->mymodel->selectDataone("user", "id = '$id_user_jenis' AND role_id <= $role_notif");
 				}
 				if ($user_role) {
 					$notif['id_user'] = $user_role['id'];
@@ -1073,6 +1079,49 @@ class Permintaan_barang extends MY_Controller
 			}
 		}
 
+		if ($_SESSION['role_id'] == 4) {
+			$user_lp = $this->mymodel->selectWithQuery("SELECT * FROM user WHERE role_id = 5");
+			foreach ($user_lp as $lp) {
+				$id_user_lp = $lp['id'];
+				$user_jenis_lp = $this->mymodel->selectDataone("user_jenis", array('id_user' => $id_user_lp, 'jenis' => $jenis_permintaan));
+				// print_r($id_user_lp);
+				if ($user_jenis_lp) {
+					$notif_lp['id_user'] = $user_jenis_lp['id_user'];
+					$notif_lp['id_permintaan'] = $id;
+					$notif_lp['status_notifikasi'] = '0';
+					$notif_lp['status'] = 'ENABLE';
+					$notif_lp['created_at'] = date("Y-m-d H:i:s");
+					$notif_lp['created_by'] = $_SESSION['id'];
+					$notif_lp['ke'] = $count_ke;
+					$notif_lp['keterangan'] = 3;
+					$notif_lp['tipe'] = 'verifikasi-terima';
+					$this->mymodel->insertData('notifikasi', $notif_lp);
+				}
+			}
+		}
+
+		if ($_SESSION['role_id'] == 5) {
+			$user_lp = $this->mymodel->selectWithQuery("SELECT * FROM user WHERE role_id >= 5 AND role_id <= 6");
+			foreach ($user_lp as $lp) {
+				$id_user_lp = $lp['id'];
+				$user_jenis_lp = $this->mymodel->selectDataone("user_jenis", array('id_user' => $id_user_lp, 'jenis' => $jenis_permintaan));
+				// print_r($id_user_lp);
+				if ($user_jenis_lp) {
+					$notif_lp['id_user'] = $user_jenis_lp['id_user'];
+					$notif_lp['id_permintaan'] = $id;
+					$notif_lp['status_notifikasi'] = '0';
+					$notif_lp['status'] = 'ENABLE';
+					$notif_lp['created_at'] = date("Y-m-d H:i:s");
+					$notif_lp['created_by'] = $_SESSION['id'];
+					$notif_lp['ke'] = $count_ke;
+					$notif_lp['keterangan'] = 3;
+					$notif_lp['tipe'] = 'verifikasi-terima';
+					$this->mymodel->insertData('notifikasi', $notif_lp);
+				}
+			}
+		}
+
+		// die();
 		$str = $this->mymodel->updateData('permintaan_barang', $dt, array('id' => $id));
 		header('Location: ' . base_url('master/surat_permintaan/detail/' . $id));
 	}
@@ -1153,7 +1202,7 @@ class Permintaan_barang extends MY_Controller
 			}
 		}
 
-		$dt['status_permintaan'] = 8;
+		$dt['status_permintaan'] = 9;
 		$str = $this->mymodel->updateData('permintaan_barang', $dt, array('id' => $id));
 
 		header('Location: ' . base_url('master/surat_permintaan/detail/' . $id));

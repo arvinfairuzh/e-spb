@@ -195,7 +195,6 @@
                                     ?>
                                 <a data-toggle="modal" data-target="#modal-verifikasi-permintaan-terima" class="btn btn-success"><i class="fa fa-check"></i> Terima</a>
                                 <a data-toggle="modal" data-target="#modal-verifikasi-permintaan-tolak" class="btn btn-danger"><i class="fa fa-times"></i> Tolak</a>
-                                <button type="button" class="btn btn-primary" onclick="edit(<?= $permintaan_barang['id'] ?>)"><i class="fa fa-pencil"></i> Edit</button>
                             <?php
                                 } else { ?>
                             <?php
@@ -206,8 +205,15 @@
                                 if ($permintaan_barang['status_permintaan'] == 7) {
                                     ?>
                                 <a data-toggle="modal" data-target="#modal-verifikasi-permintaan-terima" class="btn btn-success"><i class="fa fa-check"></i> Terima</a>
-                                <a data-toggle="modal" data-target="#modal-verifikasi-permintaan-tolak" class="btn btn-danger"><i class="fa fa-times"></i> Tolak</a>
-                                <button type="button" class="btn btn-primary" onclick="edit(<?= $permintaan_barang['id'] ?>)"><i class="fa fa-pencil"></i> Edit</button>
+                            <?php
+                                } else { ?>
+                            <?php
+                                }
+                            } else if ($_SESSION['role_id'] == 6) {
+                                ?>
+                            <?php
+                                if ($permintaan_barang['status_permintaan'] == 8) {
+                                    ?>
                             <?php
                                 } else { ?>
                             <?php
@@ -365,7 +371,7 @@
                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                             <span aria-hidden="true">&times;</span>
                                                         </button>
-                                                        <h4 class="modal-title">History Permintaan Barang</h4>
+                                                        <h4 class="modal-title">History Permintaan Subkon</h4>
                                                     </div>
                                                     <div class="modal-body">
                                                         <?php
