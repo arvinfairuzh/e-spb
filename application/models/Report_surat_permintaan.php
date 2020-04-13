@@ -72,7 +72,7 @@ class Report_surat_permintaan extends CI_Model
             $qry_jenisku = '';
         }
 
-        if ($_SESSION['role_id'] == 0 || $_SESSION['role_id'] == 5) {
+        if ($_SESSION['role_id'] == 0) {
             $qry_page = "";
         } else {
             $qry_page = "WHERE permintaan_barang.status = 'ENABLE' " . $qry_proyekku . " " . $qry_jenisku . " " . $qry_verifikasi;
