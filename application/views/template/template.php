@@ -221,9 +221,9 @@ if ($this->session->userdata('session_sop') == "") {
               <?php
               $id_user = $_SESSION['id'];
               if ($_SESSION['role_id'] == 0) {
-                $notification1 = $this->mymodel->selectWithQuery("SELECT *, DATE_FORMAT(created_at, '%d-%m-%Y %h:%i') as tanggal FROM notifikasi WHERE status_notifikasi = 0 GROUP BY id_permintaan, tipe, ke ORDER BY id desc");
-                $notification2 = $this->mymodel->selectWithQuery("SELECT *, DATE_FORMAT(created_at, '%d-%m-%Y %h:%i') as tanggal FROM notifikasi WHERE status_notifikasi = 1 GROUP BY id_permintaan, tipe, ke ORDER BY id desc");
-                $countnotifikasi = $this->mymodel->selectWithQuery("SELECT *, DATE_FORMAT(created_at, '%d-%m-%Y %h:%i') as tanggal FROM notifikasi WHERE status_notifikasi = 0 GROUP BY id_permintaan, tipe, ke ORDER BY id desc");
+                $notification1 = $this->mymodel->selectWithQuery("SELECT *, DATE_FORMAT(created_at, '%d-%m-%Y %h:%i') as tanggal FROM notifikasi WHERE status = 'ENABLE' GROUP BY id_permintaan, tipe, ke ORDER BY id desc");
+                $notification2 = $this->mymodel->selectWithQuery("SELECT *, DATE_FORMAT(created_at, '%d-%m-%Y %h:%i') as tanggal FROM notifikasi WHERE status = 'DISABLE' GROUP BY id_permintaan, tipe, ke ORDER BY id desc");
+                $countnotifikasi = $this->mymodel->selectWithQuery("SELECT *, DATE_FORMAT(created_at, '%d-%m-%Y %h:%i') as tanggal FROM notifikasi WHERE status = 'ENABLE' GROUP BY id_permintaan, tipe, ke ORDER BY id desc");
                 $countnotif = count($countnotifikasi);
               } else {
                 $notification1 = $this->mymodel->selectWithQuery("SELECT *, DATE_FORMAT(created_at, '%d-%m-%Y %h:%i') as tanggal FROM notifikasi WHERE id_user = '$id_user' AND status_notifikasi = 0 ORDER BY id desc");
@@ -252,58 +252,61 @@ if ($this->session->userdata('session_sop') == "") {
                       $role = $this->mymodel->selectDataone("role", array('id' => $user['role_id']));
                       $date = date_create($notif['created_at']);
                       $date = date_format($date, "d M Y h:i:s");
-                      ?>
-                      <a class="notifikasi" href="<?= base_url('master/permintaan_barang/read/' . $notif['id']) ?>" style="color: black;">
+                      if ($permintaan_barang) {
+                        ?>
+                        <a class="notifikasi" href="<?= base_url('master/permintaan_barang/read/' . $notif['id']) ?>" style="color: black;">
 
-                        <li>
-                          <!-- start message -->
-                          <div class="pull-left">
-                            <img src="<?= base_url() ?>webfile/no_image.jpg" class="img-circle" alt="">
-                          </div>
-                          <div class="col-md-12">
-                            <i class="fa fa-clock-o"></i><?= $notif['tanggal'] ?>
-                            <br>
-                            <?= $master_notifikasi['notifikasi'] ?>
-                            <br>
-                            Surat Permintaan : <?= $permintaan_barang['kode'] ?> <br>
-                            User : <?= $user['name'] ?> <br>
-                            Role : <?= $role['role'] ?> <br>
-                            Tanggal : <?= $date ?>
-                            <hr style="padding:5px;margin:5px;">
-                          </div>
-                        </li>
-                      </a>
+                          <li>
+                            <!-- start message -->
+                            <div class="pull-left">
+                              <img src="<?= base_url() ?>webfile/no_image.jpg" class="img-circle" alt="">
+                            </div>
+                            <div class="col-md-12">
+                              <i class="fa fa-clock-o"></i><?= $notif['tanggal'] ?>
+                              <br>
+                              <?= $master_notifikasi['notifikasi'] ?>
+                              <br>
+                              Surat Permintaan : <?= $permintaan_barang['kode'] ?> <br>
+                              User : <?= $user['name'] ?> <br>
+                              Role : <?= $role['role'] ?> <br>
+                              Tanggal : <?= $date ?>
+                              <hr style="padding:5px;margin:5px;">
+                            </div>
+                          </li>
+                        </a>
+                      <?php }
+                      }
+                      foreach ($notification2 as $notif) {
+                        $user = $this->mymodel->selectDataone("user", array('id' => $notif['id_user']));
+                        $master_notifikasi = $this->mymodel->selectDataone("master_notifikasi", array('id' => $notif['keterangan']));
+                        $permintaan_barang = $this->mymodel->selectDataone("permintaan_barang", array('id' => $notif['id_permintaan']));
+                        $user = $this->mymodel->selectDataone("user", array('id' => $notif['created_by']));
+                        $role = $this->mymodel->selectDataone("role", array('id' => $user['role_id']));
+                        $date = date_create($notif['created_at']);
+                        $date = date_format($date, "d M Y h:i:s");
+                        if ($permintaan_barang) {
+                          ?>
+                        <a class="notifikasi" href="<?= base_url('master/permintaan_barang/read/' . $notif['id']) ?>" style="color: gray;">
+
+                          <li>
+                            <!-- start message -->
+                            <div class="pull-left">
+                              <img src="<?= base_url() ?>webfile/no_image.jpg" class="img-circle" alt="">
+                            </div>
+                            <div class="col-md-12">
+                              <i class="fa fa-clock-o"></i><?= $notif['tanggal'] ?>
+                              <br>
+                              <?= $master_notifikasi['notifikasi'] ?>
+                              <br>
+                              Surat Permintaan : <?= $permintaan_barang['kode'] ?> <br>
+                              User : <?= $user['name'] ?> <br>
+                              Role : <?= $role['role'] ?> <br>
+                              Tanggal : <?= $date ?>
+                              <hr style="padding:5px;margin:5px;">
+                            </div>
+                          </li>
+                        </a>
                     <?php }
-                    foreach ($notification2 as $notif) {
-                      $user = $this->mymodel->selectDataone("user", array('id' => $notif['id_user']));
-                      $master_notifikasi = $this->mymodel->selectDataone("master_notifikasi", array('id' => $notif['keterangan']));
-                      $permintaan_barang = $this->mymodel->selectDataone("permintaan_barang", array('id' => $notif['id_permintaan']));
-                      $user = $this->mymodel->selectDataone("user", array('id' => $notif['created_by']));
-                      $role = $this->mymodel->selectDataone("role", array('id' => $user['role_id']));
-                      $date = date_create($notif['created_at']);
-                      $date = date_format($date, "d M Y h:i:s");
-                      ?>
-                      <a class="notifikasi" href="<?= base_url('master/permintaan_barang/read/' . $notif['id']) ?>" style="color: gray;">
-
-                        <li>
-                          <!-- start message -->
-                          <div class="pull-left">
-                            <img src="<?= base_url() ?>webfile/no_image.jpg" class="img-circle" alt="">
-                          </div>
-                          <div class="col-md-12">
-                            <i class="fa fa-clock-o"></i><?= $notif['tanggal'] ?>
-                            <br>
-                            <?= $master_notifikasi['notifikasi'] ?>
-                            <br>
-                            Surat Permintaan : <?= $permintaan_barang['kode'] ?> <br>
-                            User : <?= $user['name'] ?> <br>
-                            Role : <?= $role['role'] ?> <br>
-                            Tanggal : <?= $date ?>
-                            <hr style="padding:5px;margin:5px;">
-                          </div>
-                        </li>
-                      </a>
-                    <?php
                     } ?>
                   </ul>
                 </li>

@@ -311,23 +311,6 @@
                 </h5>
                 <ul class="timeline">
                     <?php
-                    $id_pb = $permintaan_barang['id'];
-                    $id_user = $permintaan_barang['created_by'];
-                    $first_notif = $this->mymodel->selectWithQuery("SELECT * FROM notifikasi WHERE id_permintaan = '$id_pb' AND id_user = '$id_user' ORDER BY created_at asc LIMIT 1");
-                    ?>
-                    <li class="time-label">
-                        <span class="bg-blue">
-                            <?php
-                            if ($first_notif[0]['created_at']) {
-                                $date = date_create($first_notif[0]['created_at']);
-                                echo date_format($date, "d M Y h:i:s");
-                            } else {
-                                echo 'Menunggu..';
-                            }
-                            ?>
-                        </span>
-                    </li>
-                    <?php
                     $count_array = 0;
                     foreach ($notifikasi as $notif) {
                         $master_notifikasi = $this->mymodel->selectDataone("master_notifikasi", array('id' => $notif['keterangan']));
@@ -371,7 +354,7 @@
                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                             <span aria-hidden="true">&times;</span>
                                                         </button>
-                                                        <h4 class="modal-title">History Permintaan Subkon</h4>
+                                                        <h4 class="modal-title">History Permintaan Barang</h4>
                                                     </div>
                                                     <div class="modal-body">
                                                         <?php

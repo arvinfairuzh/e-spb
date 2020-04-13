@@ -309,7 +309,7 @@ class Permintaan_barang extends MY_Controller
 		$data['permintaan_barang_sub'] = $this->mymodel->selectWithQuery("SELECT * FROM permintaan_barang_sub WHERE kode = '$kode'");
 		$data['master_proyek'] = $this->mymodel->selectDataone('master_proyek', array('id' => $id_proyek));
 		$data['master_status'] = $this->mymodel->selectDataone('master_status', array('id' => $status_permintaan));
-		$data['notifikasi'] = $this->mymodel->selectWithQuery("SELECT * FROM notifikasi WHERE id_permintaan = '$id' GROUP BY tipe, ke ORDER BY created_at asc");
+		$data['notifikasi'] = $this->mymodel->selectWithQuery("SELECT * FROM notifikasi WHERE id_permintaan = '$id' GROUP BY tipe, ke ORDER BY created_at desc");
 		$data['file'] = $this->mymodel->selectDataone('file', array('table_id' => $id, 'table' => 'permintaan_barang'));
 		$data['page_name'] = "permintaan_barang";
 
@@ -1213,8 +1213,13 @@ class Permintaan_barang extends MY_Controller
 		$ceknotifikasi = $this->mymodel->selectDataone("notifikasi", array('id' => $id));
 		$id_permintaan = $ceknotifikasi['id_permintaan'];
 
-		$notif['status_notifikasi'] = '1';
-		$notif['updated_at'] = date("Y-m-d H:i:s");
+		if ($_SESSION['role_id'] == 0) {
+			$notif['status'] = 'DISABLE';
+			$notif['updated_at'] = date("Y-m-d H:i:s");
+		} else {
+			$notif['status_notifikasi'] = '1';
+			$notif['updated_at'] = date("Y-m-d H:i:s");
+		}
 
 		$this->db->update('notifikasi', $notif, array('id' => $id));
 
