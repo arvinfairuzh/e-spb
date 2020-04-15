@@ -223,12 +223,16 @@ if ($this->session->userdata('session_sop') == "") {
               if ($_SESSION['role_id'] == 0) {
                 $notification1 = $this->mymodel->selectWithQuery("SELECT *, DATE_FORMAT(created_at, '%d-%m-%Y %h:%i') as tanggal FROM notifikasi WHERE status = 'ENABLE' GROUP BY id_permintaan, tipe, ke ORDER BY id desc");
                 $notification2 = $this->mymodel->selectWithQuery("SELECT *, DATE_FORMAT(created_at, '%d-%m-%Y %h:%i') as tanggal FROM notifikasi WHERE status = 'DISABLE' GROUP BY id_permintaan, tipe, ke ORDER BY id desc");
-                $countnotifikasi = $this->mymodel->selectWithQuery("SELECT *, DATE_FORMAT(created_at, '%d-%m-%Y %h:%i') as tanggal FROM notifikasi WHERE status = 'ENABLE' GROUP BY id_permintaan, tipe, ke ORDER BY id desc");
+                $countnotifikasi = $this->mymodel->selectWithQuery("SELECT * FROM notifikasi 
+                LEFT JOIN permintaan_barang ON notifikasi.id_permintaan = permintaan_barang.id
+                WHERE permintaan_barang.id != '' AND notifikasi.status = 'ENABLE' GROUP BY notifikasi.id_permintaan, tipe, ke ORDER BY notifikasi.id desc");
                 $countnotif = count($countnotifikasi);
               } else {
                 $notification1 = $this->mymodel->selectWithQuery("SELECT *, DATE_FORMAT(created_at, '%d-%m-%Y %h:%i') as tanggal FROM notifikasi WHERE id_user = '$id_user' AND status_notifikasi = 0 ORDER BY id desc");
                 $notification2 = $this->mymodel->selectWithQuery("SELECT *, DATE_FORMAT(created_at, '%d-%m-%Y %h:%i') as tanggal FROM notifikasi WHERE id_user = '$id_user' AND status_notifikasi = 1 ORDER BY id desc");
-                $countnotifikasi = $this->mymodel->selectWithQuery("SELECT *, DATE_FORMAT(created_at, '%d-%m-%Y %h:%i') as tanggal FROM notifikasi WHERE id_user = '$id_user' AND status_notifikasi = 0 ORDER BY id desc");
+                $countnotifikasi = $this->mymodel->selectWithQuery("SELECT * FROM notifikasi 
+                LEFT JOIN permintaan_barang ON notifikasi.id_permintaan = permintaan_barang.id
+                WHERE permintaan_barang.id != '' AND notifikasi.id_user = '$id_user' AND status_notifikasi = 0 ORDER BY notifikasi.id desc");
                 $countnotif = count($countnotifikasi);
               }
 

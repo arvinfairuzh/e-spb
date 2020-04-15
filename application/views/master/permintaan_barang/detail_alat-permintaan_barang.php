@@ -305,7 +305,8 @@
                 </h5>
                 <ul class="timeline">
                     <?php
-                    $count_array = 0;
+                    $log_data = json_decode($permintaan_barang['log']);
+                    $count_array = count($log_data);
                     foreach ($notifikasi as $notif) {
                         $master_notifikasi = $this->mymodel->selectDataone("master_notifikasi", array('id' => $notif['keterangan']));
                         $user = $this->mymodel->selectDataone("user", array('id' => $notif['created_by']));
@@ -319,7 +320,7 @@
                         } else if ($notif['tipe'] == 'edit') {
                             $bg = 'bg-gray';
                             $icon = 'fa fa-pencil';
-                            $count_array++;
+                            $count_array--;
                         } else if ($notif['tipe'] == 'verifikasi-terima') {
                             $bg = 'bg-green';
                             $icon = 'fa fa-check';
@@ -352,10 +353,8 @@
                                                     </div>
                                                     <div class="modal-body">
                                                         <?php
-                                                                $log_data = json_decode($permintaan_barang['log']);
-                                                                $count = count($log_data) + 1;
                                                                 $text_count = 0;
-                                                                for ($a = $count_array - 2; $a <= $count_array - 1; $a++) {
+                                                                for ($a = $count_array; $a >= $count_array - 1; $a--) {
                                                                     // rsort($log_data);
                                                                     $text_count++;
                                                                     if ($text_count == 1) {
