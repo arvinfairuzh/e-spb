@@ -67,7 +67,7 @@
                   </div>
                   <div class="form-group">
                     <label for="form-role_id">Role</label>
-                    <select style='width:100%' name="dt[role_id]" class="form-control select2">
+                    <select style='width:100%' disabled class="form-control select2">
                       <?php
                       $role = $this->mymodel->selectWhere('role', 'id != 0');
                       foreach ($role as $role_record) {
@@ -80,7 +80,7 @@
                       ?>
                     </select>
                   </div>
-                  <div class="form-group">
+                  <div class="form-group disable">
                     <label for="form-desc">Jenis Permintaan</label><br>
                     <?php
                     $master_jenis = $this->mymodel->selectWhere('master_jenis', null);
@@ -92,7 +92,7 @@
                           $text = 'checked';
                         }
                       }
-                      echo "<input type='checkbox' value='" . $master_jenis_record['id'] . "' name='jenis[]' $text > " . $master_jenis_record['value'] . '<br>';
+                      echo "<input type='checkbox' disabled value='" . $master_jenis_record['id'] . "' $text > " . $master_jenis_record['value'] . '<br>';
                     }
                     ?>
                   </div>

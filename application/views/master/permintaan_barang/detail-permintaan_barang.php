@@ -66,54 +66,102 @@
                         </div>
                         <div class="form-group col-md-12">
                             <div class="table-responsive">
-                                <table class="table table-bordered" id="dynamic_fieldinvoice" style="width:100%;">
+                                <table class="table table-bordered" id="dynamic_fieldinvoice">
                                     <tr>
-                                        <th style="width:10%;">
+                                        <th>
                                             Kode Pekerjaan
                                         </th>
-                                        <th style="width:10%;">
+                                        <th>
                                             Jenis Barang
                                         </th>
-                                        <th style="width:7%;">
+                                        <th>
                                             Vol
                                         </th>
-                                        <th style="width:10%;">
+                                        <th>
                                             Satuan
                                         </th>
-                                        <th style="width:10%;">
+                                        <th>
                                             Fungsi
                                         </th>
-                                        <th style="width:7%;">
+                                        <th>
                                             Target Tanggal Datang
                                         </th>
-                                        <th style="width:10%;">
+                                        <th>
                                             Keterangan/Tujuannya
+                                        </th>
+                                        <th>
+                                            Kepada
+                                        </th>
+                                        <th>
+                                            Status Penugasan
                                         </th>
                                     </tr>
                                     <?php
+                                    if ($_SESSION['role_id'] == 7) {
+                                        $hidden_edit_penugasan_ga = 'hide';
+                                    }
+                                    if ($_SESSION['role_id'] == 8) {
+                                        $hidden_edit_penugasan_it = 'hide';
+                                    }
                                     foreach ($permintaan_barang_sub as $pbs) {
+                                        $hidden_show_penugasan = '';
+                                        $hide_verifikasi = '';
+                                        $keterangan = json_decode($pbs['keterangan']);
+                                        $role_penugasan = $this->mymodel->selectDataone("role", array('id' => $pbs['kepada']));
+                                        if ($pbs['kepada'] == 0) {
+                                            $hidden_show_penugasan = 'hide';
+                                        }
+                                        if ($pbs['penugasan'] == 'Pending' && $pbs['kepada'] != 0) {
+                                            $hide_verifikasi = 'hide';
+                                        }
+                                        if ($_SESSION['role_id'] == 7) {
+                                            if ($pbs['kepada'] == 7 && $pbs['penugasan'] == 'Pending') {
+                                                $hidden_edit_penugasan_ga = '';
+                                            }
+                                        }
+                                        if ($_SESSION['role_id'] == 8) {
+                                            if ($pbs['kepada'] == 8 && $pbs['penugasan'] == 'Pending') {
+                                                $hidden_edit_penugasan_it = '';
+                                            }
+                                        }
                                         ?>
                                         <tr>
-                                            <td style="width:10%;">
+                                            <td>
                                                 <p><?= $pbs['kode_pekerjaan'] ?></p>
                                             </td>
-                                            <td style="width:10%;">
+                                            <td>
                                                 <p><?= $pbs['id_barang'] ?></p>
                                             </td>
-                                            <td style="width:7%;">
+                                            <td>
                                                 <p><?= $pbs['qty'] ?></p>
                                             </td>
-                                            <td style="width:10%;">
+                                            <td>
                                                 <p><?= $pbs['id_satuan'] ?></p>
                                             </td>
-                                            <td style="width:10%;">
+                                            <td>
                                                 <p><?= $pbs['fungsi'] ?></p>
                                             </td>
-                                            <td style="width:10%;">
+                                            <td>
                                                 <p><?= $pbs['target'] ?></p>
                                             </td>
-                                            <td style="width:10%;">
-                                                <p><?= $pbs['keterangan'] ?></p>
+                                            <td>
+                                                <p>
+                                                    <?php
+                                                        foreach ($keterangan as $ket) {
+                                                            $user = $this->mymodel->selectDataone("user", array('id' => $ket->id_user));
+                                                            $role = $this->mymodel->selectDataone("role", array('id' => $ket->role_user));
+                                                            ?>
+                                                        <?= $ket->tanggal ?> <?= $user['name'] ?> - <?= $role['role'] ?> : <?= $ket->keterangan ?> <br>
+                                                    <?php
+                                                        }
+                                                        ?>
+                                                </p>
+                                            </td>
+                                            <td>
+                                                <p class="<?= $hidden_show_penugasan ?>"><?= $role_penugasan['role'] ?></p>
+                                            </td>
+                                            <td>
+                                                <p class="<?= $hidden_show_penugasan ?>"><?= $pbs['penugasan'] ?></p>
                                             </td>
                                         </tr>
                                     <?php
@@ -125,17 +173,28 @@
                             <label for="form-cost_control">Status Permintaan</label>
                             <p><?= $master_status['nama'] ?></p>
                         </div>
-                        <div class="form-group col-md-12">
-                            <label for="form-file">File Lampiran</label><br>
-                            <?php
-                            if ($permintaan_barang['file'] != "") {
-                                ?>
-                                <i class="fa fa-file fa-5x text-danger"></i>
-                                <br>
-                                <a href="<?= base_url('webfile/' . $permintaan_barang['file']) ?>" target="_blank"><i class="fa fa-download"></i> <?= $permintaan_barang['file'] ?></a>
-                                <br>
-                                <br>
-                            <?php } ?>
+                        <div class="col-md-12">
+                            <label class="">File Lampiran</label>
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dynamic_fieldattach">
+                                    <?php
+                                    $i = 1;
+                                    $file = $this->mymodel->selectWhere("file", array('table_id' => $permintaan_barang['id'], 'table' => 'permintaan_barang'));
+                                    foreach ($file as $attach) {
+                                        $i--;
+                                        ?>
+                                        <tr id="rowattach<?= $i ?>">
+                                            <td style="width:30%;">
+                                                <a href="<?= base_url($attach['dir']) ?>" target="_blank" class="btn btn-primary"><i class="fa fa-download"></i>Download File</a>
+                                            </td>
+                                            <td style="width:60%;">
+                                                <?= $attach['keterangan'] ?>
+                                            </td>
+                                        </tr>
+                                    <?php
+                                    } ?>
+                                </table>
+                            </div>
                         </div>
                     </div>
                     <div class="box-footer">
@@ -169,8 +228,8 @@
                             <?php
                                 if ($permintaan_barang['status_permintaan'] == 3) {
                                     ?>
-                                <a data-toggle="modal" data-target="#modal-verifikasi-permintaan-terima" class="btn btn-success"><i class="fa fa-check"></i> Terima</a>
-                                <a data-toggle="modal" data-target="#modal-verifikasi-permintaan-tolak" class="btn btn-danger"><i class="fa fa-times"></i> Tolak</a>
+                                <a data-toggle="modal" data-target="#modal-verifikasi-permintaan-terima" class="btn btn-success <?= $hide_verifikasi ?>"><i class="fa fa-check"></i> Terima</a>
+                                <a data-toggle="modal" data-target="#modal-verifikasi-permintaan-tolak" class="btn btn-danger <?= $hide_verifikasi ?>"><i class="fa fa-times"></i> Tolak</a>
                                 <button type="button" class="btn btn-primary" onclick="edit(<?= $permintaan_barang['id'] ?>)"><i class="fa fa-pencil"></i> Edit</button>
                             <?php
                                 } else { ?>
@@ -208,7 +267,7 @@
                                 }
                             } else {
                                 ?>
-                            <button type="button" class="btn btn-primary" onclick="edit(<?= $permintaan_barang['id'] ?>)"><i class="fa fa-pencil"></i> Edit</button>
+                            <button type="button" class="btn btn-primary <?= $hidden_edit_penugasan_ga . $hidden_edit_penugasan_it ?>" onclick="edit(<?= $permintaan_barang['id'] ?>)"><i class="fa fa-pencil"></i> Edit</button>
                         <?php
                         }
                         ?>
@@ -304,8 +363,8 @@
                     $count_array = count($log_data);
                     foreach ($notifikasi as $notif) {
                         $master_notifikasi = $this->mymodel->selectDataone("master_notifikasi", array('id' => $notif['keterangan']));
-                        $user = $this->mymodel->selectDataone("user", array('id' => $notif['created_by']));
-                        $role = $this->mymodel->selectDataone("role", array('id' => $user['role_id']));
+                        $user_notifikasi = $this->mymodel->selectDataone("user", array('id' => $notif['created_by']));
+                        $role_notifikasi = $this->mymodel->selectDataone("role", array('id' => $user_notifikasi['role_id']));
                         $permintaan_barang = $this->mymodel->selectDataone("permintaan_barang", array('id' => $notif['id_permintaan']));
                         $bg = '';
                         $icon = '';
@@ -337,8 +396,8 @@
                                         <a data-toggle="modal" class="pull-right" data-target="#modal-history-edit<?= $count_array ?>">
                                             Detail
                                         </a>
-                                        <div class="modal fade bd-example-modal-sm" id="modal-history-edit<?= $count_array ?>" style="display: none;">
-                                            <div class="modal-dialog">
+                                        <div class="modal fade bd-example-modal-lg" id="modal-history-edit<?= $count_array ?>" style="display: none;">
+                                            <div class="modal-dialog modal-lg">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -353,9 +412,9 @@
                                                                     // rsort($log_data);
                                                                     $text_count++;
                                                                     if ($text_count == 1) {
-                                                                        $text = 'Lama';
-                                                                    } else {
                                                                         $text = 'Baru';
+                                                                    } else {
+                                                                        $text = 'Lama';
                                                                     }
                                                                     $permintaan_barang = $this->mymodel->selectDataone('permintaan_barang', array('kode' => $log_data[$a]->kode));
                                                                     $master_proyek = $this->mymodel->selectDataone('master_proyek', array('id' => $log_data[$a]->id_proyek));
@@ -367,55 +426,67 @@
                                                             <br>
                                                             <div class="form-group">
                                                                 <div class="table-responsive">
-                                                                    <table class="table table-bordered" id="dynamic_fieldinvoice" style="width:100%;">
+                                                                    <table class="table table-bordered" id="dynamic_fieldinvoice">
                                                                         <tr>
-                                                                            <th style="width:10%;">
+                                                                            <th>
                                                                                 Kode Pekerjaan
                                                                             </th>
-                                                                            <th style="width:10%;">
+                                                                            <th>
                                                                                 Jenis Barang
                                                                             </th>
-                                                                            <th style="width:7%;">
+                                                                            <th>
                                                                                 Vol
                                                                             </th>
-                                                                            <th style="width:10%;">
+                                                                            <th>
                                                                                 Satuan
                                                                             </th>
-                                                                            <th style="width:10%;">
+                                                                            <th>
                                                                                 Fungsi
                                                                             </th>
-                                                                            <th style="width:7%;">
+                                                                            <th>
                                                                                 Target Tanggal Datang
                                                                             </th>
-                                                                            <th style="width:10%;">
+                                                                            <th width="580">
                                                                                 Keterangan/Tujuannya
                                                                             </th>
                                                                         </tr>
                                                                         <?php
                                                                                     $permintaan_barang_sub = $log_data[$a]->sub;
+                                                                                    $file_lampiran = $log_data[$a]->file;
                                                                                     foreach ($permintaan_barang_sub as $pbs) {
+                                                                                        $keterangan = json_decode($pbs->keterangan);
                                                                                         ?>
                                                                             <tr>
-                                                                                <td style="width:10%;">
+                                                                                <td>
                                                                                     <p><?= $pbs->kode_pekerjaan ?></p>
                                                                                 </td>
-                                                                                <td style="width:10%;">
+                                                                                <td>
                                                                                     <p><?= $pbs->id_barang ?></p>
                                                                                 </td>
-                                                                                <td style="width:7%;">
+                                                                                <td>
                                                                                     <p><?= $pbs->qty ?></p>
                                                                                 </td>
-                                                                                <td style="width:10%;">
+                                                                                <td>
                                                                                     <p><?= $pbs->id_satuan ?></p>
                                                                                 </td>
-                                                                                <td style="width:10%;">
+                                                                                <td>
                                                                                     <p><?= $pbs->fungsi ?></p>
                                                                                 </td>
-                                                                                <td style="width:10%;">
+                                                                                <td>
                                                                                     <p><?= $pbs->target ?></p>
                                                                                 </td>
-                                                                                <td style="width:10%;">
-                                                                                    <p><?= $pbs->keterangan ?></p>
+                                                                                <td>
+                                                                                    <p>
+                                                                                        <?php
+                                                                                                        foreach ($keterangan as $ket) {
+                                                                                                            $user_history = $this->mymodel->selectDataone("user", array('id' => $ket->id_user));
+                                                                                                            $role_history = $this->mymodel->selectDataone("role", array('id' => $ket->role_user));
+                                                                                                            ?>
+                                                                                            <?= $ket->tanggal ?> <?= $user_history['name'] ?> - <?= $role_history['role'] ?> : <?= $ket->keterangan ?> <br>
+                                                                                        <?php
+                                                                                                        }
+                                                                                                        ?>
+                                                                                    </p>
                                                                                 </td>
                                                                             </tr>
                                                                         <?php
@@ -425,13 +496,9 @@
                                                             </div>
                                                             <div class="form-group">
                                                                 <?php
-                                                                            if ($log_data[$a]->file != "") {
+                                                                            foreach ($file_lampiran as $file) {
                                                                                 ?>
-                                                                    <i class="fa fa-file fa-5x text-danger"></i>
-                                                                    <br>
-                                                                    <a href="<?= base_url('webfile/' . $log_data[$a]->file) ?>" target="_blank"><i class="fa fa-download"></i> <?= $log_data[$a]->file ?></a>
-                                                                    <br>
-                                                                    <br>
+                                                                    <a href="<?= base_url($file->dir) ?>" target="_blank" class="btn btn-sm btn-primary"><i class="fa fa-download"></i> <?= $file->keterangan ?></a>
                                                                 <?php } ?>
                                                                 <hr>
                                                             </div>
@@ -443,8 +510,8 @@
                                         </div>
                                     </h3>
                                     <div class="timeline-body">
-                                        User : <?= $user['name'] ?> <br>
-                                        Role : <?= $role['role'] ?> <br>
+                                        User : <?= $user_notifikasi['name'] ?> <br>
+                                        Role : <?= $role_notifikasi['role'] ?> <br>
                                         Tanggal : <?= $date ?>
                                     </div>
                                 </div>
@@ -455,8 +522,8 @@
                                     <h3 class="timeline-header <?= $bg ?>">
                                         <?= $master_notifikasi['keterangan'] ?></h3>
                                     <div class="timeline-body">
-                                        User : <?= $user['name'] ?> <br>
-                                        Role : <?= $role['role'] ?> <br>
+                                        User : <?= $user_notifikasi['name'] ?> <br>
+                                        Role : <?= $role_notifikasi['role'] ?> <br>
                                         Catatan : <?= $permintaan_barang['catatan'] ?> <br>
                                         Tanggal : <?= $date ?>
                                     </div>
@@ -468,8 +535,8 @@
                                     <h3 class="timeline-header <?= $bg ?>">
                                         <?= $master_notifikasi['keterangan'] ?></h3>
                                     <div class="timeline-body">
-                                        User : <?= $user['name'] ?> <br>
-                                        Role : <?= $role['role'] ?> <br>
+                                        User : <?= $user_notifikasi['name'] ?> <br>
+                                        Role : <?= $role_notifikasi['role'] ?> <br>
                                         Tanggal : <?= $date ?>
                                     </div>
                                 </div>
@@ -490,7 +557,7 @@
 </div>
 <!-- /.content-wrapper -->
 
-<div class="modal fade bd-example-modal-sm" tabindex="-1" permintaan_barang="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="modal-delete">
+<div class="modal fade bd-example-modal-lg" tabindex="-1" permintaan_barang="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="modal-delete">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <form id="upload-delete" action="<?= base_url('master/Permintaan_barang/delete') ?>">

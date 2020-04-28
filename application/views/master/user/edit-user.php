@@ -52,7 +52,7 @@
                 <label for="form-role_id">Role</label>
                 <select style='width:100%' name="dt[role_id]" class="form-control select2">
                   <?php
-                  $role = $this->mymodel->selectWhere('role', 'id != 0');
+                  $role = $this->mymodel->selectWhere('role', NULL);
                   foreach ($role as $role_record) {
                     $text = "";
                     if ($role_record['id'] == $user['role_id']) {

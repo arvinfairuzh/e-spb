@@ -360,24 +360,6 @@ class User extends MY_Controller
 				$dt['password'] = md5($password_new);
 			}
 
-			$jenis = $_POST['jenis'];
-			$count_jenis = count($jenis);
-			$this->db->delete('user_jenis',  array('id_user' => $id));
-			for ($i = 0; $i < $count_jenis; $i++) {
-				$json[$i] = array(
-					'jenis' => $jenis[$i]
-				);
-
-				$dta['jenis'] = $jenis[$i];
-				$dta['id_user'] = $id;
-
-				$this->mymodel->insertData('user_jenis', $dta);
-			}
-
-			$datajson = json_encode($json);
-
-			$dt['jenis'] = $datajson;
-
 			$dt['updated_at'] = date("Y-m-d H:i:s");
 
 

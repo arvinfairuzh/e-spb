@@ -3,14 +3,14 @@
   <!-- Content Header (Page header) -->
   <section class="content-header">
     <h1>
-      Surat Permintaan
-      <small>Data</small>
+      Surat Permintaan Selesai
+      <small>Report</small>
     </h1>
     <ol class="breadcrumb">
       <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
       <li><a href="#">Master</a></li>
-      <li class="#">Surat Permintaan</li>
-      <li class="active">Data</li>
+      <li class="#">Surat Permintaan Selesai</li>
+      <li class="active">Report</li>
     </ol>
   </section>
   <!-- Main content -->
@@ -21,23 +21,8 @@
           <!-- /.box-header -->
           <div class="box-header">
             <div class="row">
-              <div class="col-md-12">
-                <?php
-                if ($_SESSION['role_id'] == 1) {
-                  ?>
-                  <div class="pull-right">
-                    <a onclick="ajukan()">
-                      <button type="button" class="btn btn-md btn-success"><i class="fa fa-plus"></i> Ajukan Surat Permintaan</button>
-                    </a>
-                  </div>
-                <?php
-                }
-                ?>
-              </div>
-              <br>
-              <hr>
-              <form action="<?= base_url("master/surat_permintaan/") ?>" method="post">
-                <div class="col-md-3">
+              <form action="<?= base_url("report/surat_permintaan_selesai/") ?>" method="post">
+                <div class="col-md-5">
                   <div class="form-group">
                     <label>Proyek</label>
                     <select class="form-control select2" name="proyek">
@@ -60,25 +45,7 @@
                     </select>
                   </div>
                 </div>
-                <div class="col-md-3">
-                  <div class="form-group">
-                    <label>Status Permintaan</label>
-                    <select class="form-control select2" name="status">
-                      <option value="">Semua Status</option>
-                      <?php
-                      $master_status = $this->mymodel->selectWithQuery("SELECT * FROM master_status GROUP BY value");
-                      foreach ($master_status as $key => $value) {
-                        $text = '';
-                        if ($this->session->userdata('status') == $value['nama']) {
-                          $text = 'selected';
-                        }
-                        ?>
-                        <option value="<?= $value['value'] ?>" <?= $text ?>><?= $value['value'] ?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-2">
+                <div class="col-md-5">
                   <div class="form-group">
                     <label>Jenis Permintaan</label>
                     <select class="form-control select2" name="jenis">
@@ -98,19 +65,6 @@
                         ?>
                         <option value="<?= $value['value'] ?>" <?= $text ?>><?= $value['value'] ?></option>
                       <?php } ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-2">
-                  <div class="form-group">
-                    <label>Jenis Data</label>
-                    <select class="form-control select2" name="page">
-                      <option value="semua" <?php if ($_SESSION['page'] == 'semua') {
-                                              echo 'selected';
-                                            } ?>>Semua Data</option>
-                      <option value="dataku" <?php if ($_SESSION['page'] == 'dataku') {
-                                                echo 'selected';
-                                              } ?>>Menunggu Verifikasi</option>
                     </select>
                   </div>
                 </div>
@@ -207,7 +161,7 @@
       "scrollX": true,
       // Load data for the table's content from an Ajax source
       "ajax": {
-        "url": "<?php echo base_url('report/Surat_permintaan/ajaxall/') ?>",
+        "url": "<?php echo base_url('report/Surat_permintaan_selesai/ajaxall/') ?>",
         "type": "POST"
       },
       //Set column definition initialisation properties.

@@ -2,7 +2,7 @@
 
 if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-class Report_surat_permintaan extends CI_Model
+class Report_surat_permintaan_selesai extends CI_Model
 {
 
     public function __construct()
@@ -12,13 +12,13 @@ class Report_surat_permintaan extends CI_Model
         $id_user = $_SESSION['id'];
         $proyek = $_SESSION['proyek'];
         $jenis = $_SESSION['jenis'];
-        $status_permintaan = $_SESSION['status'];
-        $page = $_SESSION['page'];
+        $status_permintaan = 'Diterima Logistik Pusat PIC';
+        $page = 'semua';
         $qry_penugasan = '';
         $qry_kode_penugasan = '';
         if ($page == 'dataku') {
             if ($_SESSION['role_id'] == 1) {
-                $qry_verifikasi = ' AND permintaan_barang.status_permintaan = 0 ';
+                $qry_verifikasi = ' AND permintaan_barang.status_permintaan = 0 AND id_pic =' . $id_user;
             } else if ($_SESSION['role_id'] == 2) {
                 $qry_verifikasi = ' AND permintaan_barang.status_permintaan = 1 ';
             } else if ($_SESSION['role_id'] == 3) {
@@ -120,16 +120,15 @@ class Report_surat_permintaan extends CI_Model
         $this->table = "(SELECT a.* FROM 
         (
             SELECT permintaan_barang.id,permintaan_barang.kode,permintaan_barang.id_proyek,master_proyek.nama as proyek,
-            master_proyek.lokasi,catatan,status_permintaan as id_status,master_status.value as status_permintaan,
+            master_proyek.lokasi,catatan,status_permintaan as id_status,master_status.nama as status_permintaan,
             permintaan_barang.jenis,permintaan_barang.status, DATE_FORMAT(permintaan_barang.created_at ,'%d-%m-%Y') as tanggal_pengajuan, 
             permintaan_barang.tgl_selesai, permintaan_barang.created_at
             FROM permintaan_barang
             LEFT JOIN master_proyek ON permintaan_barang.id_proyek = master_proyek.id
             LEFT JOIN master_status ON permintaan_barang.status_permintaan = master_status.id
             " . $qry_page . "
-        ) a"
-            . $qry_penugasan
-            . " WHERE a.status = 'ENABLE' " . $qry_proyek . $qry_jenis . $qry_sp . $qry_kode_penugasan . ") as tabledata";
+        ) a
+        WHERE a.status = 'ENABLE' " . $qry_proyek . $qry_jenis . $qry_sp . ") as tabledata";
     }
 
 

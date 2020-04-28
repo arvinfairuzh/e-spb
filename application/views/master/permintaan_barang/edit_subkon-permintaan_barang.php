@@ -1,11 +1,14 @@
 <?php
+$gati = '';
 if ($_SESSION['role_id'] == 1) {
-    $keterangan_hidden = 'hide';
-    $add_disable = '';
+  $keterangan_hidden = 'hide';
+  $add_disable = '';
 } else if ($_SESSION['role_id'] == 2) {
-    $add_disable = '';
+  $add_disable = '';
+} else if ($_SESSION['role_id'] == 7 || $_SESSION['role_id'] == 8) {
+  $gati = 'hide';
 } else {
-    $add_disable = 'disabled';
+  $add_disable = 'hidden';
 }
 ?>
 <!-- Content Wrapper. Contains page content -->
@@ -64,26 +67,32 @@ if ($_SESSION['role_id'] == 1) {
                             <div class="table-responsive">
                                 <table class="table table-bordered" id="dynamic_fieldinvoice" style="width:100%;">
                                     <tr>
-                                        <th style="width:10%;">
+                                        <th>
                                             Kode Pekerjaan
                                         </th>
-                                        <th style="width:10%;">
+                                        <th>
                                             Jenis Barang
                                         </th>
-                                        <th style="width:7%;">
+                                        <th>
                                             Vol
                                         </th>
-                                        <th style="width:10%;">
+                                        <th>
                                             Satuan
                                         </th>
-                                        <th style="width:10%;">
+                                        <th>
                                             Waktu Pelaksanaan
                                         </th>
-                                        <th style="width:7%;">
+                                        <th>
                                             Persyaratan
                                         </th>
-                                        <th style="width:10%;">
+                                        <th>
                                             Keterangan/Tujuannya
+                                        </th>
+                                        <th>
+                                            Kepada
+                                        </th>
+                                        <th>
+                                            Status Penugasan
                                         </th>
                                         <th>
                                         </th>
@@ -92,25 +101,37 @@ if ($_SESSION['role_id'] == 1) {
                                     $i = 100;
                                     foreach ($permintaan_barang_sub as $pbs) {
                                         $persyaratan = json_decode($pbs['persyaratan']);
+                                        $role_penugasan = $this->mymodel->selectDataone("role", array('id' => $pbs['kepada']));
+                                        $hidden_edit_penugasan = '';
+                                        $hidden_show_penugasan = '';
+                                        if ($pbs['kepada'] == 0) {
+                                            $hidden_show_penugasan = 'hide';
+                                        }
+                                        $keterangan = json_decode($pbs['keterangan']);
+                                        if ($_SESSION['role_id'] == 7 || $_SESSION['role_id'] == 8) {
+                                            if ($pbs['kepada'] != $_SESSION['role_id'] || $pbs['penugasan'] == 'Selesai') {
+                                                $hidden_edit_penugasan = 'hide';
+                                            }
+                                        }
                                         $i++;
                                         ?>
                                         <tr>
-                                            <td style="width:10%;">
+                                            <td>
                                                 <p><?= $pbs['kode_pekerjaan'] ?></p>
                                             </td>
-                                            <td style="width:10%;">
+                                            <td>
                                                 <p><?= $pbs['id_barang'] ?></p>
                                             </td>
-                                            <td style="width:7%;">
+                                            <td>
                                                 <p><?= $pbs['qty'] ?></p>
                                             </td>
-                                            <td style="width:10%;">
+                                            <td>
                                                 <p><?= $pbs['id_satuan'] ?></p>
                                             </td>
-                                            <td style="width:10%;">
+                                            <td>
                                                 <p><?= $pbs['waktu_pelaksanaan'] ?></p>
                                             </td>
-                                            <td style="width:10%;">
+                                            <td>
                                                 <?php
                                                     $master_persyaratan = $this->mymodel->selectWhere('master_persyaratan', null);
                                                     $persyaratan = json_decode($pbs['persyaratan']);
@@ -125,10 +146,26 @@ if ($_SESSION['role_id'] == 1) {
                                                     }
                                                     ?>
                                             </td>
-                                            <td style="width:10%;">
-                                                <p><?= $pbs['keterangan'] ?></p>
+                                            <td>
+                                                <p>
+                                                    <?php
+                                                        foreach ($keterangan as $ket) {
+                                                            $user = $this->mymodel->selectDataone("user", array('id' => $ket->id_user));
+                                                            $role = $this->mymodel->selectDataone("role", array('id' => $ket->role_user));
+                                                            ?>
+                                                        <?= $ket->tanggal ?> <?= $user['name'] ?> - <?= $role['role'] ?> : <?= $ket->keterangan ?> <br>
+                                                    <?php
+                                                        }
+                                                        ?>
+                                                </p>
                                             </td>
-                                            <td style="width:6%;" align="center">
+                                            <td>
+                                                <p class="<?= $hidden_show_penugasan ?>"><?= $role_penugasan['role'] ?></p>
+                                            </td>
+                                            <td>
+                                                <p class="<?= $hidden_show_penugasan ?>"><?= $pbs['penugasan'] ?></p>
+                                            </td>
+                                            <td align="center">
                                                 <button type="button" onclick="edit_item(<?= $pbs['id'] ?>)" data-toggle="modal" title="Edit" class="btn btn-sm btn-warning"><i class="fa fa-pencil"></i></button>
                                                 <button type="button" name="remove" id="<?= $i ?>" data-toggle="modal" title="Delete" data-target="#modal-delete-permintaan-<?= $i ?>" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
                                             </td>
@@ -143,7 +180,62 @@ if ($_SESSION['role_id'] == 1) {
                                                             <div class="box-footer" align="center">
                                                                 <button type="button" class="btn btn-info" data-dismiss="modal"><i class="fa fa-close"></i> Tutup</button>
                                                                 <a href="<?= base_url('master/permintaan_barang/delete_permintaan/' . $pbs['id']) ?>">
-                                                                    <button type="button" class="btn btn-danger btn-send"><i class="fa fa-trash"></i> Hapus</button>
+                                                                    <button type="button" class="btn btn-danger"><i class="fa fa-trash"></i> Hapus</button>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </tr>
+                                    <?php
+                                    } ?>
+                                    <tfoot>
+                                        <tr class="<?= $add_disable ?>">
+                                            <td colspan="9">
+                                            </td>
+                                            <td>
+                                                <button type="button" onclick="tambah_item(<?= $permintaan_barang['id'] ?>)" class="btn btn-block btn-primary pull-right "><i class="fa fa-plus"></i></button>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="">File Lampiran</label>
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dynamic_fieldattach">
+                                    <?php
+                                    $i = 1;
+                                    $file = $this->mymodel->selectWhere("file", array('table_id' => $permintaan_barang['id'], 'table' => 'permintaan_barang'));
+                                    foreach ($file as $attach) {
+                                        $i--;
+                                        ?>
+                                        <tr id="rowattach<?= $i ?>">
+                                            <td style="width:30%;">
+                                                <a href="<?= base_url($attach['dir']) ?>" target="_blank" class="btn btn-primary"><i class="fa fa-download"></i>Download File</a>
+                                            </td>
+                                            <td style="width:60%;">
+                                                <?= $attach['keterangan'] ?>
+                                            </td>
+
+                                            <td style="width:8%;" align="center">
+                                                <button type="button" onclick="edit_file(<?= $attach['id'] ?>)" data-toggle="modal" title="Edit" class="btn btn-sm btn-warning"><i class="fa fa-pencil"></i></button>
+                                                <button type="button" name="remove" id="<?= $i ?>" data-toggle="modal" data-target="#modal-delete-file-<?= $i ?>" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
+                                            </td>
+                                            <div class="modal modal-default fade" id="modal-delete-file-<?= $i ?>" style="display: none;">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header bg-red">
+                                                            <h4 class="modal-title" align="center"> Hapus File</h4>
+                                                        </div>
+                                                        <div class="modal-body" align="center">
+                                                            <h3>Anda Yakin Ingin Menghapus File ini?</h3>
+                                                            <div class="box-footer" align="center">
+                                                                <button type="button" class="btn btn-info" data-dismiss="modal"><i class="fa fa-close"></i> Tutup</button>
+                                                                <a href="<?= base_url('master/permintaan_barang/delete_file/' . $attach['id']) ?>">
+                                                                    <button type="button" class="btn btn-danger"><i class="fa fa-trash"></i> Hapus</button>
                                                                 </a>
                                                             </div>
                                                         </div>
@@ -155,39 +247,28 @@ if ($_SESSION['role_id'] == 1) {
                                     } ?>
                                     <tfoot>
                                         <tr>
-                                            <td colspan="7">
+                                            <td colspan="2">
                                             </td>
                                             <td style="width:5%;">
-                                                <button type="button" onclick="tambah_item(<?= $permintaan_barang['id'] ?>)" <?= $add_disable ?> class="btn btn-block btn-primary pull-right"><i class="fa fa-plus"></i></button>
+                                                <button type="button" onclick="tambah_file(<?= $permintaan_barang['id'] ?>)" class="btn btn-block btn-primary pull-right"><i class="fa fa-plus"></i></button>
                                             </td>
                                         </tr>
                                     </tfoot>
                                 </table>
+
+                                <!-- <button type="button" name="addattach" id="addattach" class="btn btn-success">Tambah</button> -->
                             </div>
                         </div>
+                    </div>
+                    <div class="box-footer <?= $gati ?>">
                         <form method="POST" action="<?= base_url('master/Permintaan_barang/update_subkon') ?>" id="upload-create" enctype="multipart/form-data">
                             <input type="hidden" value="<?= $permintaan_barang['kode'] ?>" name="kode">
                             <input type="hidden" value="<?= $permintaan_barang['id'] ?>" name="id">
                             <input type="hidden" value="<?= $count_log ?>" name="count_log">
-                            <div class="form-group col-md-12">
-                                <?php
-                                if ($permintaan_barang['file'] != "") {
-                                    ?>
-                                    <i class="fa fa-file fa-5x text-danger"></i>
-                                    <br>
-                                    <a href="<?= base_url('webfile/' . $permintaan_barang['file']) ?>" target="_blank"><i class="fa fa-download"></i> <?= $permintaan_barang['file'] ?></a>
-                                    <br>
-                                    <br>
-                                <?php } ?>
-                                <label for="form-file">File Lampiran</label>
-                                <input type="file" class="form-control" id="form-file" placeholder="Masukan File" name="file">
-                            </div>
                             <div class="show_error"></div>
+                            <button type="submit" class="btn btn-primary btn-send"><i class="fa fa-save"></i> Simpan</button>
+                        </form>
                     </div>
-                    <div class="box-footer">
-                        <button type="submit" class="btn btn-primary btn-send"><i class="fa fa-save"></i> Simpan</button>
-                    </div>
-                    </form>
                     <!-- /.box-body -->
                 </div>
                 <!-- /.box -->
@@ -234,6 +315,20 @@ if ($_SESSION['role_id'] == 1) {
         $("#modal-form").modal();
         $("#title-form").html('Tambah Item');
         $("#load-form").load("<?= base_url('master/Permintaan_barang/tambah_item_subkon_modal/') ?>" + id);
+    }
+
+    function tambah_file(id) {
+        $("#load-form").html('loading...');
+        $("#modal-form").modal();
+        $("#title-form").html('Tambah File');
+        $("#load-form").load("<?= base_url('master/Permintaan_barang/tambah_file_modal/') ?>" + id);
+    }
+
+    function edit_file(id) {
+        $("#load-form").html('loading...');
+        $("#modal-form").modal();
+        $("#title-form").html('Edit File');
+        $("#load-form").load("<?= base_url('master/Permintaan_barang/edit_file_modal/') ?>" + id);
     }
 
     $(document).ready(function() {

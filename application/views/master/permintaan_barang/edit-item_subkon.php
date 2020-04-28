@@ -1,20 +1,24 @@
 <?php
-$kode_readonly = '';
-$add_disable = '';
-$keterangan_readonly = '';
-$select2 = '';
+$keterangan_hidden = '';
+$tugas_hidden = 'hide';
+$form_hide = '';
+$status_tugas = 'hide';
+$max = '';
 if ($_SESSION['role_id'] == 1) {
     $keterangan_hidden = 'hide';
-} else if ($_SESSION['role_id'] == 2) { } else if ($_SESSION['role_id'] == 3) {
-    $add_disable = 'disabled';
-    $select2 = 'select2';
+} else if ($_SESSION['role_id'] == 3) {
+    $tugas_hidden = '';
+    $max = 'max="' . $permintaan_barang['qty'] . '"';
+} else if ($_SESSION['role_id'] == 7 || $_SESSION['role_id'] == 8) {
+    $status_tugas = '';
+    $form_hide = 'hide';
 }
 ?>
 
 <form method="POST" autocomplete="off" action="<?= base_url('master/Permintaan_barang/ubah_subkon/' . $permintaan_barang_sub['id']) ?>">
     <input type="hidden" value="<?= $permintaan_barang['kode'] ?>" name="kode">
     <input type="hidden" value="<?= $permintaan_barang['id'] ?>" name="id">
-    <div class="form-group">
+    <div class="form-group <?= $form_hide ?> ">
         <label>Kode Pekerjaan</label>
         <select id="kode_cost" style="width: 100%;" name="kode_pekerjaan[]" class="form-control select2">
             <option value="0">Pilih Kode Pekerjaan</option>
@@ -30,15 +34,15 @@ if ($_SESSION['role_id'] == 1) {
             ?>
         </select>
     </div>
-    <div class="form-group autocomplete">
+    <div class="form-group <?= $form_hide ?>  autocomplete">
         <label>Jenis Barang</label>
         <input type="text" class="form-control" id="myInput" value="<?= $permintaan_barang_sub['id_barang'] ?>" name="id_barang[]">
     </div>
-    <div class="form-group">
+    <div class="form-group <?= $form_hide ?> ">
         <label>Volume</label>
-        <input style="" type="number" step="0.01" value="<?= $permintaan_barang_sub['qty'] ?>" class="form-control qty" id="qty" name="qty[]">
+        <input style="" type="number" step="0.01" <?= $max ?> value="<?= $permintaan_barang_sub['qty'] ?>" class="form-control qty" id="qty" name="qty[]">
     </div>
-    <div class="form-group">
+    <div class="form-group <?= $form_hide ?> ">
         <label>Satuan</label>
         <select style="width: 100%;" id="satuan" name="id_satuan[]" class="form-control satuan">
             <?php
@@ -53,11 +57,11 @@ if ($_SESSION['role_id'] == 1) {
             ?>
         </select>
     </div>
-    <div class="form-group">
+    <div class="form-group <?= $form_hide ?> ">
         <label>Waktu Pelaksanaan</label>
         <input type="date" class="form-control" name="waktu_pelaksanaan[]" value="<?= $permintaan_barang_sub['waktu_pelaksanaan'] ?>" id="">
     </div>
-    <div class="form-group">
+    <div class="form-group <?= $form_hide ?> ">
         <label>Persyaratan</label><br>
         <?php
         $master_persyaratan = $this->mymodel->selectWhere('master_persyaratan', null);
@@ -75,7 +79,39 @@ if ($_SESSION['role_id'] == 1) {
     </div>
     <div class="form-group <?= $keterangan_hidden ?> ">
         <label>Keterangan</label>
-        <textarea class="form-control" name="keterangan[]" rows="1" id=""><?= $permintaan_barang_sub['keterangan'] ?></textarea>
+        <textarea class="form-control" name="keterangan[]" rows="1" id=""></textarea>
+    </div>
+    <div class="form-group <?= $tugas_hidden ?> ">
+        <label>Ditugaskan Kepada</label>
+        <select style="width: 100%;" name="kepada" class="form-control">
+            <option value="0">Tidak Perlu</option>
+            <?php
+            $role = $this->mymodel->selectWithQuery("SELECT * FROM role WHERE id = 8 OR id = 7");
+            foreach ($role as $role_record) {
+                $text = '';
+                if ($role_record['id'] == $permintaan_barang_sub['kepada']) {
+                    $text = 'selected';
+                }
+                echo "<option value=" . $role_record['id'] . " $text >" . $role_record['role'] . "</option>";
+            }
+            ?>
+        </select>
+    </div>
+    <div class="form-group <?= $status_tugas ?> ">
+        <label>Status Penugasan</label>
+        <select style="width: 100%;" name="penugasan[]" class="form-control">
+            <?php
+            $pending = '';
+            $selesai = '';
+            if ($permintaan_barang_sub['penugasan'] == 'Pending') {
+                $pending = 'selected';
+            } else {
+                $selesai = 'selected';
+            }
+            ?>
+            <option value="Pending" <?= $pending ?>>Pending</option>
+            <option value="Selesai" <?= $selesai ?>>Selesai</option>
+        </select>
     </div>
     <div class="form-group">
         <hr>
@@ -190,6 +226,24 @@ if ($_SESSION['role_id'] == 1) {
         $(document).on('change', '#kode_cost', function() {
             get_jenis_barang($("#kode_cost").val());
         });
+
+        <?php
+        if ($_SESSION['role_id'] == 3) {
+            ?>
+
+            function cek_qty(qty) {
+                var max = <?= $permintaan_barang_sub['qty'] ?>;
+                if (qty >= max) {
+                    $("#qty").val(max);
+                }
+            }
+
+            $(document).on('keyup', '#qty', function() {
+                cek_qty($("#qty").val());
+            });
+        <?php
+        }
+        ?>
 
     });
 

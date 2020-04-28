@@ -57,7 +57,7 @@
                         <select style="width: 100%" id="role0" name="id_role[]" class="form-control select2 role">
                           <option value="0">Pilih Role</option>
                           <?php
-                          $role = $this->mymodel->selectWhere('role', 'id != 0 AND id != 5');
+                          $role = $this->mymodel->selectWhere('role', 'id != 0 AND id != 5 AND id != 6');
                           foreach ($role as $role_record) {
                             echo "<option value=" . $role_record['id'] . ">" . $role_record['role'] . "</option>";
                           }
@@ -109,7 +109,7 @@
         '<select style="width: 100%" id="role' + i + '" name="id_role[]" class="form-control select2 role">' +
         '<option value="0">Pilih Role</option>' +
         <?php
-        $role = $this->mymodel->selectWhere('role', 'id != 0 AND id != 5');
+        $role = $this->mymodel->selectWhere('role', 'id != 0 AND id != 5 AND id != 6');
         foreach ($role as $role_record) {
           ?> '        <option value="<?= $role_record['id'] ?>"><?= $role_record['role'] ?></option>' +
         <?php } ?> '</select>' +

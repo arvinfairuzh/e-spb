@@ -1,23 +1,23 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 error_reporting(0);
-class Surat_permintaan extends MY_Controller
+class Surat_permintaan_selesai extends MY_Controller
 {
 
   public function __construct()
   {
     parent::__construct();
-    $this->load->model('Report_surat_permintaan', 'rSurat_permintaan');
+    $this->load->model('Report_surat_permintaan_selesai', 'rSurat_permintaan_selesai');
   }
 
   public function index()
   {
     $data['page_name'] = "Report Surat_permintaan";
-    $this->template->load('template/template', 'report/surat_permintaan/all', $data);
+    $this->template->load('template/template', 'report/surat_permintaan_selesai/all', $data);
   }
 
   function ajaxAll()
   {
-    $list = $this->rSurat_permintaan->get_datatables();
+    $list = $this->rSurat_permintaan_selesai->get_datatables();
     $data = array();
     $i = 1;
     foreach ($list as $u) {
@@ -55,7 +55,6 @@ class Surat_permintaan extends MY_Controller
               $durasi -= 1;
             }
           }
-
           $d = new DateTime($date);
           $d->modify('+1 day');
           $date = $d->format('Y-m-d');
@@ -94,8 +93,8 @@ class Surat_permintaan extends MY_Controller
 
     $output = array(
       "draw" => $_POST['draw'],
-      "recordsTotal" => $this->rSurat_permintaan->count_all(),
-      "recordsFiltered" => $this->rSurat_permintaan->count_filtered(),
+      "recordsTotal" => $this->rSurat_permintaan_selesai->count_all(),
+      "recordsFiltered" => $this->rSurat_permintaan_selesai->count_filtered(),
       "data" => $data
     );
 
@@ -105,7 +104,7 @@ class Surat_permintaan extends MY_Controller
 
   function getExcel()
   {
-    $list = $this->rSurat_permintaan->get_data();
+    $list = $this->rSurat_permintaan_selesai->get_data();
     $data = array();
     $i = 1;
     foreach ($list as $u) {
